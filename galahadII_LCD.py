@@ -208,7 +208,7 @@ def main():
     parser.add_argument('-r','--rotate', 
         type=int, 
         help='Rotate GIF, counter-clockwise default: -90',
-        default=-90, 
+        default=0, 
         required=False
     )
     parser.add_argument('-v','--vid', 
@@ -233,9 +233,11 @@ def main():
 
     device = GalahadII_Vision(args)
 
-    rotate_gif(args.input, 'rotated.gif', args.rotate)
-    args.input = 'rotated.gif'
-    source_fps = convert_gif_to_h264('rotated.gif', 'video.h264')
+    if args.rotate != 0:
+        rotate_gif(args.input, 'rotated.gif', args.rotate)
+        args.input = 'rotated.gif'
+
+    source_fps = convert_gif_to_h264(args.input, 'video.h264')
 
     try:
         print(f"[+] Streaming '{args.input}'...")
