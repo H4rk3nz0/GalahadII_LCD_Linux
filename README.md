@@ -35,6 +35,8 @@ You'll likely need to pip install pyav
 
 ```
 -$ sudo pacman -S python-av
+OR
+-$ pip install av --break-system-packages
 ```
 
 Then run the script with your chosen gif, use -h to list args for rotating the GIF, changing VID/PID and frame interval speed.
@@ -52,7 +54,7 @@ Then run the script with your chosen gif, use -h to list args for rotating the G
 ```
 ## Notes
 
-If interrupted you only have a few seconds to restart the same or a new stream, else when running again the LCD will restart and killing the script.
+If interrupted you only have a few seconds to restart the same or a new stream, else when running again the LCD will restart and kill the script.
 
 I recommended that one gif be chosen at a time and this enabled as a service to run on a delay after startup.
 
@@ -66,7 +68,7 @@ Description=LianLiGalahadIILCD
 
 [Service]
 WorkingDirectory=/opt/GalahadII_LCD_Linux/
-ExecStart=/usr/bin/python3 /opt/GalahadII_LCD_Linux/galahadII_LCD.py -i mygif.gif
+ExecStart=/usr/bin/python3 /opt/GalahadII_LCD_Linux/galahadII_LCD.py -i frieren.gif
 
 [Install]
 WantedBy=multi-user.target
