@@ -1,0 +1,69 @@
+import os
+import subprocess
+import signal
+import argparse
+
+from galahad_config import GalahadConfig
+config = GalahadConfig()
+
+def stop_video():
+    if not config.pid_file.is_file():
+        return
+    with open(config.pid_file, "r") as f:
+        pid = int(f.read())
+    try:
+        os.kill(pid, signal.SIGTERM)
+        print("Previous video process killed")
+    except:
+        print("Unable to kill previous video... a previous process probably wasn't running.")
+
+def play_video():
+    stop_video()
+    with open(os.devnull, "wb") as devnull:
+        proc = subprocess.Popen(
+            ["./venv/bin/python3", config.stream_script],
+            stdout=devnull,
+            stderr=devnull,
+            stdin=devnull,
+            start_new_session=True
+        )
+    print(f"Writing pid file: {proc.pid}")
+    with open(config.pid_file, "w") as f:
+        f.write(str(proc.pid))
+
+def main():
+    parser = argparse.ArgumentParser(description ='Lian Li Galahad II LCD Video')
+    parser.add_argument('-i','--input', 
+        type=str, 
+        help='Input gif to use',
+        required=False
+    )
+    parser.add_argument('-v','--vid', 
+        type=int, 
+        help='Vendor ID, default: 0x0416',
+        default=0x0416, 
+        required=False
+    )
+    parser.add_argument('-p','--pid', 
+        type=int, 
+        help='Product ID, default: 0x7395',
+        default=0x7395, 
+        required=False
+    )
+    parser.add_argument('-s','--stop', 
+        help='Stop running the video',
+        action="store_true"
+    )
+
+    args = parser.parse_args()
+    config.product_id = args.pid
+    config.vendor_id = args.vid
+    if args.input is not None:
+        config.current_video = args.input
+        config.write_config()
+        play_video()
+    if args.stop:
+        stop_video()
+
+if __name__ == "__main__":
+    main()
