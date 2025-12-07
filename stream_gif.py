@@ -65,7 +65,7 @@ def convert_gif_to_h264(input_path, output_path):
 
     output_container = av.open(output_path, mode='w', format='h264')
     
-    stream = output_container.add_stream('libx264', rate=10) # fps=10
+    stream = output_container.add_stream('libx264', rate=10)
     stream.width = 480
     stream.height = 480
     stream.pix_fmt = 'yuv420p'
@@ -81,7 +81,9 @@ def convert_gif_to_h264(input_path, output_path):
     graph = av.filter.Graph()
 
     buffer = graph.add_buffer(template=input_stream)
-    scale = graph.add("scale", "480:480:flags=lanczos")
+
+    scale = graph.add("scale", "w=480:h=480:force_original_aspect_ratio=decrease")
+    pad   = graph.add("pad",   "w=480:h=480:x=(ow-iw)/2:y=(oh-ih)/2:color=black")
     fps = graph.add("fps", "fps=10")
     
     # IMPORTANT format filter to convert GIF (RGB/Paletted) to YUV420P
@@ -91,7 +93,8 @@ def convert_gif_to_h264(input_path, output_path):
     sink = graph.add("buffersink")
 
     buffer.link_to(scale)
-    scale.link_to(fps)
+    scale.link_to(pad)
+    pad.link_to(fps)
     fps.link_to(fmt)
     fmt.link_to(sink)
     
