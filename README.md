@@ -1,17 +1,25 @@
 # GalahadII LCD Linux
 A simple PyUSB script to stream a gif to the Lian-Li Galahad II LCD on Linux - because Linux deserves pretty things too.
-This script was created and tested on CachyOS - with some help from a Windows VM, USBPcap, and DNSpyEx for reversing L-Connect.  
+This script was created and tested on CachyOS (and Gentoo) - with some help from a Windows VM, USBPcap, and DNSpyEx for reversing L-Connect.  
+
+**NOTE** If this script isn't working, I recommend enumerating the values for the `REPORT_ID_VIDEO` variable until you find a number that works.
 
 ## Fork Notes
 
-There appears to be slight differences between Lian-Li hardware revisions that cause compatibility issues with the original script.  
-As a result, I forked the repository and updated it to work with my hardware (`LianLi-GA_II-LCD_v1.4`).  
+Please check out the original repository: https://github.com/H4rk3nz0/GalahadII_LCD_Linux
+H4rk3nzo did all the hard work, I just hacked together changes and updates to fit my needs.  
   
-The real change was updating the `REPORT_ID_VIDEO` variable to `0x02` from `0x03`. 
-If this script isn't working, I recommend enumerating the values for `REPORT_ID_VIDEO` until you find a number that works.
-  
-Other changes include updating the `README` to fit my preferences, adding a `requirements.txt` file to make resolving dependencies easier, and adding a simple `.gitignore` file.
-If I feel motivated I may add more features to this project.
+The original project wasn't working for my hardware revision (`LianLi-GA_II-LCD_v1.4`) so I updated the script to work on my stuff but eventually I ended up with somthing quite different.  
+
+Here's some notable changes:
+    - Updated the `REPORT_ID_VIDEO` variable from `0x03` to `0x02` to get the script working with my hardware
+    - Added a virtual environment
+    - Added a `requirements.txt` file
+    - Maintained the aspect ratio of the gif's
+    - Removed the rotate feature (I personally didn't need it but I probably should bring that back...)
+    - Chopped up the scripts and reorganized the files based on my preferences
+    - Renamed the script and removed the need for an input flag
+    - Heavily edited the `README` file while also keeping a lot of it the same
 
 ## Setup
 
@@ -41,7 +49,8 @@ Then update the rules with `udevadm`
 
 ### Environment  
 
-Create a virtual environment for the script to run in (optional):  
+Create a virtual environment for the gif streaming script to run in.
+I set up the script rather sloppily and I'm not a Python developer so currently the script requires a virtual environment living within a `venv` folder.  
 
 ```
 -$ python3 -m venv venv
@@ -52,21 +61,23 @@ Install the dependencies:
 ```
 -$ pip install -r requirements.txt
 ```
+  
+From here you can call `deactivate` and not worry about the virtual environment again.
+  
+Finally, ensure the `splashstream` script has execute permissions:
+```
+-$ chmod +x splashstream
+```
 
 ## Usage
 
-Then run the script with your chosen gif, use -h to list args for rotating the GIF, changing VID/PID and frame interval speed.
+Run the script with your chosen gif, use -h to list args for stopping the GIF, and changing VID/PID.
 
 ```
--$ python3 galahadII_LCD.py -i frieren.gif
-[+] Device Initialized
-[!] Opening frieren.gif...
-[!] Saving 40 frames to rotated.gif...
-[+] Done!
-[!] Converting rotated.gif -> video.h264...
-[!] Detected FPS: 10
-[+] Conversion Complete.
-[+] Streaming 'rotated.gif'...
+-$ ./splashstream frieren.gif
+Settings written to /home/topsoil/.config/splashstream/config.json
+Previous video process killed
+Writing pid file: 1459626
 ```
 
 ## Systemd Service
@@ -77,9 +88,10 @@ Create a new service file called `lconlcd.service` within `/etc/systemd/system/`
 [Unit]
 Description=LianLiGalahadIILCD
 
+ # Update these directory as needed
 [Service]
 WorkingDirectory=/opt/GalahadII_LCD_Linux/
-ExecStart=/usr/bin/python3 /opt/GalahadII_LCD_Linux/galahadII_LCD.py -i frieren.gif
+ExecStart=/usr/bin/python3 /opt/GalahadII_LCD_Linux/splashstream frieren.gif
 
 [Install]
 WantedBy=multi-user.target
@@ -94,7 +106,7 @@ Then perform a daemon-reload and enable the service
 
 ## Notes
 
-### Original Notes
+### Notes from the original author
 If interrupted you only have a few seconds to restart the same or a new stream, else when running again the LCD will restart and kill the script.
 
 I recommended that one gif be chosen at a time and this enabled as a service to run on a delay after startup.
@@ -104,5 +116,9 @@ Still - better than staring at the damn Lian-Li logo all day.
 
 ### My notes (tww0003)  
   
-I haven't encountered the issues with interrupting the script. In my experience, the LCD screen will just freeze on the last frame displayed.  
-I also didn't experience any issues swapping between gifs at any point like the original author mentions.
+I haven't encountered the issues with interrupting the script. In my experience, the LCD screen will just freeze on the last frame displayed. I also didn't experience any issues swapping between gifs at any point like the original author mentions.
+  
+I only know enough Python to be dangerous and the way this script works should be proof of that.  
+The `splashstream` script parses whatever arguments you pass in, writes a config file, then spans a subprocess that streams the gif to the lcd screen so that the command can exit and the gif can continue playing. The subprocess is spawned via `venv/bin/python` so it's important that the virtual environment is created for the script to work correctly. This is a bad design decision and I know that. The PID of that process is written to a file, which is later read and killed when either the `-s` flag is supplied or before a new gif is streamed.  
+  
+It would be nice to package this up so that it can be added to variable package managers, but I'm unsure if I'll continue to have the motivation to do so.
