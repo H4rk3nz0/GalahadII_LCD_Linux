@@ -18,7 +18,7 @@ class GalahadConfig:
     pkt_size_ctrl = 1024
     max_payload_video = 501
 
-    app_directory_name = "galahadlcd"
+    app_directory_name = "splashstream"
     cfg_dir = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / app_directory_name
     cfg_file = cfg_dir / "config.json"
     pid_file_name = app_directory_name + ".pid"
