@@ -66,7 +66,7 @@ echo -e "${GREEN}[+] Writing config file to ${CONFIG_FILE}...${NC}"
 echo "MYAPP_ARGS=\"${DEFAULT_ARGS}\"" > "$CONFIG_FILE"
 chmod 644 "$CONFIG_FILE"
 
-echo -e "${GREEN}[+] Creating Systemd Service file with 10s delay...${NC}"
+echo -e "${GREEN}[+] Creating Systemd Service file with 3s delay...${NC}"
 cat <<EOF > "${SERVICE_FILE}"
 [Unit]
 Description=${APP_NAME} Service
