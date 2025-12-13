@@ -1,19 +1,24 @@
 import usb.core
 import usb.util
-import time
-import struct
-import os
-import av
-import argparse
+import av, argparse, time
+from struct import pack
+from os import path,remove
 
 from PIL import Image, ImageSequence
+
+
+# Check Galahad USB Reported Version: lsusb | grep 'LianLi-GA_II-LCD'
+# If 1.6 and above, try: REPORT_ID_VIDEO = 0x03 
+# 0x02 appears to work regardless on newer firmware versions however
+# Thanks @t0ps0il <3
+
+REPORT_ID_VIDEO = 0x02
 
 # --- Constants ---
 INTERFACE_NUM = 1
 EP_OUT = 0x02
 
 # H264 Stream
-REPORT_ID_VIDEO = 0x03
 CMD_SEND_H264 = 0x0D
 
 # Struct sizes
@@ -48,7 +53,7 @@ class GalahadII_Vision:
             remaining = total_size - bytes_sent
             chunk_len = min(remaining, MAX_PAYLOAD_VIDEO)
             
-            header = struct.pack('>BB I 3s H', 
+            header = pack('>BB I 3s H', 
                                  REPORT_ID_VIDEO, 
                                  CMD_SEND_H264, 
                                  total_size, 
@@ -256,18 +261,17 @@ def main():
 
     except KeyboardInterrupt:
         print("\n[!] Stopped.")
-        if os.path.isfile('rotated.gif'):
-            os.remove('rotated.gif')
-        if os.path.isfile('video.h264'):
-            os.remove('video.h264')
+        if path.isfile('rotated.gif'):
+            remove('rotated.gif')
+        if path.isfile('video.h264'):
+            remove('video.h264')
 
     except Exception as e:
         print(f"\n[-] Error: {e}")
-        if os.path.isfile('rotated.gif'):
-            os.remove('rotated.gif')
-        if os.path.isfile('video.h264'):
-            os.remove('video.h264')
+        if path.isfile('rotated.gif'):
+            remove('rotated.gif')
+        if path.isfile('video.h264'):
+            remove('video.h264')
 
 if __name__ == "__main__":
     main()
-    
