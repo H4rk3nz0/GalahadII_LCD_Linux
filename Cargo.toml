@@ -1,0 +1,13 @@
+[package]
+name = "galahad2lcd"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rusb = "0.9.4"
+ffmpeg-next = "8.0"
+anyhow = "1.0"
+ctrlc = "3.4"
+byteorder = "1.5"
+clap = { version = "4.0", features = ["derive"] }
+image = { version = "0.24", features = ["gif"] }
