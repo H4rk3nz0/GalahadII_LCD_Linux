@@ -1,85 +1,49 @@
 # GalahadII_LCD_Linux
-A simple PyUSB script to stream a gif to the Lian-Li Galahad II LCD on Linux - because Linux deserves pretty things too.
+A Rust compiled service for streaming an MP4/GIF to the Lian-Li Galahad II LCD on Unix systems - Linux deserves pretty things too.
 This script was created and tested on CachyOS - with some help from a Windows VM, USBPcap, and DNSpyEx for reversing L-Connect.
+
+This is a rewrite of the previous Python project to act as a more elegant solution.
 
 ## Usage
 
 First identify/confirm that the GAII device is detected.
-Make note of the ID value - 0416:7395 , I have set these as the script default but may require changing!
+Make note of the ID value - 0416:7395 , I have set these as the script default but may require changing in src/main.rs !
 
 ```
--$ lsusb | grep -i 'LianLi-GA'
+❯ lsusb | grep -i 'LianLi-GA'
+
 Bus 001 Device 023: ID 0416:7395 Winbond Electronics Corp. LianLi-GA_II-LCD_v1.6
 ```
 
-Next - modify the permissions of the USB device, this is optional **however you will need to run the python script with sudo if not done**
+Ensure you have cargo installed, then run the install script with your chosen gif.
 
 ```
--$ sudo nano /etc/udev/rules.d/99-galahad.rules
+❯ sudo bash install.sh /home/harkenzo/Pictures/frieren.gif
+
+--- Starting Installation for galahad2lcd ---
+[+] Building Release Binary...
+---SNIP---
+[+] Build successful.
+[+] Installing binary to /usr/local/bin...
+[+] Writing config file to /etc/default/galahad2lcd
+[+] Creating Systemd Service file with 3s delay
+[+] Reloading daemon and enabling service...
+Created symlink '/etc/systemd/system/multi-user.target.wants/galahad2lcd.service' → '/etc/systemd/system/galahad2lcd.service'.
+--- Installation Complete ---
+[+] Service is starting (with a 3s delay)...
+[!] Video set to: /home/harkenzo/Pictures/frieren.gif
+[+] Galahad2LCD Installed! :D
 ```
 
-Add the following, make sure to change your vendor and product id based on the earlier lsusb output
+To Update The Video/GIF: 
 
 ```
-SUBSYSTEM=="usb", ATTR{idVendor}=="0416", ATTR{idProduct}=="7395", MODE="0666"
+Usage: sudo galahad2lcd set-args [OPTIONS] --input <INPUT> -r 0
+
+  -i, --input <INPUT>    Path to the video/gif file
+  -r, --rotate <ROTATE>  Rotation in degrees (0, 90, 180, 270) [default: 0]
+  -h, --help             Print help
 ```
 
-Then update the rules with udevadm
-
-```
--$ sudo udevadm control --reload-rules
--$ sudo udevadm trigger
-```
-
-You'll likely need to pip install pyav
-
-```
--$ sudo pacman -S python-av
-OR
--$ pip install av --break-system-packages
-```
-
-Then run the script with your chosen gif, use -h to list args for rotating the GIF, changing VID/PID and frame interval speed.
-
-```
--$ python3 galahadII_LCD.py -i frieren.gif
-[+] Device Initialized
-[!] Opening frieren.gif...
-[!] Saving 40 frames to rotated.gif...
-[+] Done!
-[!] Converting rotated.gif -> video.h264...
-[!] Detected FPS: 10
-[+] Conversion Complete.
-[+] Streaming 'rotated.gif'...
-```
-## Notes
-
-If interrupted you only have a few seconds to restart the same or a new stream, else when running again the LCD will restart and kill the script.
-
-I recommended that one gif be chosen at a time and this enabled as a service to run on a delay after startup.
-
-```
--$ sudo nano /etc/systemd/system/lconlcd.service
-```
-
-```
-[Unit]
-Description=LianLiGalahadIILCD
-
-[Service]
-WorkingDirectory=/opt/GalahadII_LCD_Linux/
-ExecStart=/usr/bin/python3 /opt/GalahadII_LCD_Linux/galahadII_LCD.py -i frieren.gif
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Then perform a daemon-reload and enable the service
-
-```
--$ sudo systemctl daemon-reload
--$ sudo systemctl enable --now lconlcd
-```
-
-This is far from perfect :) - the script basically just throws the H264 data at the LCD without the polling and other comms normally made by L-Connect.
+This is far from perfect :) - the service basically just throws the H264 data at the LCD without the polling and other comms normally made by L-Connect.
 Still - better than staring at the damn Lian-Li logo all day.
