@@ -4,10 +4,43 @@ This script was created and tested on CachyOS - with some help from a Windows VM
 
 This is a rewrite of the previous Python project to act as a more elegant solution.
 
-## Usage
+## Prerequisites
 
-First identify/confirm that the GAII device is detected.
-Make note of the ID value - 0416:7395 , I have set these as the script default but may require changing in src/main.rs !
+There are several libraries that may be required depending on your Linux Distro of choice. I have tried to compile some common ones below.
+I can't cater to all distros here sadly, but I am sure you can get it working on Red Star OS - I believe in you.
+
+### Ubuntu
+
+The rustc version at time of writing necessitates rustup to be installed instead of cargo
+
+```
+sudo apt install -y rustup pkg-config libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev clang build-essential && \
+    rustup default stable 
+```
+
+### Debian
+
+```
+sudo apt install -y cargo pkg-config libavutil-dev libavformat-dev libavfilter-dev libavdevice-dev
+```
+
+### Fedora
+
+```
+sudo dnf install cargo libavutil-free-devel libavformat-free-devel libavfilter-free-devel libavdevice-free-devel
+```
+
+### Arch
+
+```
+sudo pacman -S cargo pkgconf ffmpeg clang
+```
+
+## Building
+
+First identify & confirm that the GAII device is detected.
+Make note of the Product and Vendor ID values, e.g: 0416:7395
+I have set these as the script default **but may require changing in src/main.rs** !
 
 ```
 ❯ lsusb | grep -i 'LianLi-GA'
