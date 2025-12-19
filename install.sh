@@ -75,7 +75,7 @@ After=network.target
 [Service]
 Type=simple
 EnvironmentFile=${CONFIG_FILE}
-ExecStartPre=/bin/sleep 5
+ExecStartPre=/bin/sleep 8
 ExecStart=${INSTALL_DIR}/${APP_NAME} daemon \$MYAPP_ARGS
 Restart=on-failure
 User=root
