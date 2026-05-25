@@ -1,3 +1,7 @@
+REPO HAS BEEN ARCHIVED - FULL L CONNECT LINUX SOFTWARE RELEASED BY ANOTHER DEVELOPER:
+
+https://github.com/sgtaziz/lian-li-linux
+
 # GalahadII_LCD_Linux
 A Rust compiled service for streaming an MP4/GIF to the Lian-Li Galahad II LCD on Unix systems - Linux deserves pretty things too.
 This script was created and tested on CachyOS - with some help from a Windows VM, USBPcap, and DNSpyEx for reversing L-Connect.
